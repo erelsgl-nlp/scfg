@@ -9,8 +9,8 @@
 	 */
 
 	var headingPattern = /[=]+\s*(.*?)\s*[=]+\s*/;
-	var listItemPattern = /[*]+\s*([{][{]group[|](.*?)[}][}])?\s*(.*)/;
-	var commentPattern = /\s*#.*$/;
+	var listItemPattern = /[*]+\s*(.*)/;
+	var commentPattern = /\s*#.*?$/;
 	var separatorPattern = /\s*\/\s*/;
 
 
@@ -109,7 +109,7 @@ module.exports = {
 			if ((matcher = headingPattern.exec(line))) {
 				currentTitle = matcher[1].trim();
 			} else if ((matcher = listItemPattern.exec(line)) && currentTitle) {
-				var pair = matcher[3];
+				var pair = matcher[1];
 				var fields = pair.split(separatorPattern);
 				if (fields.length<2)  // skip empty lines
 					return;

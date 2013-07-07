@@ -1,3 +1,5 @@
+# This is a demo grammar 
+
 == <root> ==
 * <offer>  / <offer>
 * <accept> / <accept>
