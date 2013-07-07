@@ -75,5 +75,3 @@ if (process.argv[1] === __filename) {
 	var nr = new NamedRegexp("I offer a salary of <number> <currency>", variables);
 	console.dir(nr.exec("I offer a salary of 20000 USD"));
 }
-
-
