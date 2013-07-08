@@ -60,6 +60,7 @@ SynchronousContextFreeGrammar.prototype = {
 		
 		
 		// expand the terminal variables (replace with examples):
+		// currently disabled
 		if (variableDescriptionType!=null) {
 			var newTranslations = {};
 			for (var source in translationsFromStartNonterminal) {
@@ -81,6 +82,10 @@ SynchronousContextFreeGrammar.prototype = {
 		if (verbosity) console.log("expanded from "+startNonterminal+": "+JSON.stringify(translationsFromStartNonterminal));
 		return translationsFromStartNonterminal;
 	}  // end function expand
+	
+	
+	
+	
 };
 
 /*
