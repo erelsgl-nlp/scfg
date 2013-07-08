@@ -5,6 +5,8 @@
 
 
 /** 
+ * Escape the chars with special regexp-meaning in the given string.
+ *
  * See the following stackexchange pages:
  * http://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711#3561711
  * http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
@@ -15,6 +17,8 @@ RegExp.escape = function(s) {
 
 
 /**
+ * Initialize a RegExp with named variables.
+ *
  * @param pattern (string) - a string with some variables, 
  *   for example: "I offer a salary of <number> <currency>"
  * @param mapVariableToRegexp - a hash where the keys are variables, and the values are (usual) regular expressions, 
@@ -62,16 +66,29 @@ NamedRegexp.prototype = {
 	}
 }
 
+/**
+ * a convenience method: match the text against the given pattern (regular expression with named variables), 
+ * and return the assignments to the variables.
+ */
+NamedRegexp.match = function(text, pattern, mapVariableToRegexp) {
+	return new NamedRegexp(pattern,mapVariableToRegexp).exec(text);
+}
+
 
 module.exports = NamedRegexp;
 
 
 // DEMO PROGRAM:
 if (process.argv[1] === __filename) {
+	console.log("named_regexp.js demo start");
 	var variables = {
 		"<number>": "\\d+",
 		"<currency>": "[^ ]+",
 	};
 	var nr = new NamedRegexp("I offer a salary of <number> <currency>", variables);
 	console.dir(nr.exec("I offer a salary of 20000 USD"));
+	
+	console.dir(NamedRegexp.match("I offer a salary of 20000 USD", "I offer a salary of <number> <currency>", variables));
+	console.log("named_regexp.js demo end");
 }
+

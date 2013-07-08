@@ -4,15 +4,6 @@
  
 
 
-	/*
-	 * FORMATTING UTILS - PROTECTED ZONE
-	 */
-
-	var headingPattern = /[=]+\s*(.*?)\s*[=]+\s*/;
-	var listItemPattern = /[*]+\s*(.*)/;
-	var commentPattern = /\s*#.*?$/;
-	var separatorPattern = /\s*\/\s*/;
-
 
 var SynchronousContextFreeGrammar = function(grammarMap) {
 	this.grammarMap = grammarMap;
@@ -92,6 +83,14 @@ SynchronousContextFreeGrammar.prototype = {
 	}  // end function expand
 };
 
+/*
+ * FORMATTING:
+ */
+
+var headingPattern = /[=]+\s*(.*?)\s*[=]+\s*/;
+var listItemPattern = /[*]+\s*(.*)/;
+var commentPattern = /\s*#.*?$/;
+var separatorPattern = /\s*\/\s*/;
 
 module.exports = {
 	DEFAULT_GRAMMAR_ROOT: "<root>",
@@ -125,8 +124,8 @@ module.exports = {
 
 // DEMO PROGRAM:
 if (process.argv[1] === __filename) {
-	var fs = require('fs');
 	console.log("scfg.js demo start");
+	var fs = require('fs');
 	var scfg = module.exports.fromString(fs.readFileSync("NegotiationGrammarJsonMinimalAngled.txt",'utf8'));
 	console.log("\nGRAMMAR:\n");
 	console.dir(scfg);
