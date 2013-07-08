@@ -34,15 +34,15 @@
 * I quit    / {"Quit": true}
 
 == <issuevalue> ==
-* pension of <number>1 percent        /   {"Pension Fund": "<number>1%"}
+* pension of <number> percent        /   {"Pension Fund": "<number>%"}
 * monthly salary of <wage>             /   {"Salary": "<wage>"}
-* workday of <number>1 hours          /   {"Working Hours": "<number>1 hours"}
+* workday of <number> hours          /   {"Working Hours": "<number> hours"}
 * company car               /   {"Leased Car": "With leased car"}
 * position as a <jobdescription>      /   {"Job Description": "<jobdescription>"}
 * <promotional> promotion track  /   {"Promotion Possibilities": "<promotional> promotion track"}
 
 == <wage> ==
-* <number>1 thousand <currency> / <number>1,000 <currency>
+* <number> thousand <currency> / <number>,000 <currency>
 
 == <currency> ==
 * NIS / NIS

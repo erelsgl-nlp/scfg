@@ -99,6 +99,7 @@ if (process.argv[1] === __filename) {
 	var variables = {
 		"<number>": "\\d+",
 		"<currency>": "[^ ]+",
+		"<any>": ".+",
 	};
 	
 	// standard way of using a regexp: compile an object, then match:
@@ -110,6 +111,7 @@ if (process.argv[1] === __filename) {
 	// alternative way of using a regexp: compile a function, then match:
 	var variablesMatches = RegexpWithNames.matches(variables);
 	console.log("single match again: ");  console.dir(variablesMatches("I offer a salary of 20000 USD", "I offer a salary of <number> <currency>"));
+	console.log("match anything:");  console.dir(variablesMatches("I offer a salary of 20000 USD", "<any>"));
 	console.log("regexp_names.js demo end");
 }
 

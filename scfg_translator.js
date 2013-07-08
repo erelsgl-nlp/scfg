@@ -153,6 +153,7 @@ ScfgTranslator.prototype = {
 			var currentPair = openQueue.remove(); // (T, V->N)
 			logger.startAction("Drilling down on "+currentPair);
 			var assignments = this.entail(currentPair.subText, currentPair.naturalLanguage); // entail(T,N)
+			//console.log("\t"+"entail ("+currentPair.subText+","+currentPair.naturalLanguage+") = "+JSON.stringify(assignments));
 			assignments.forEach(function(assignment) {
 				goodStack.push(new SubtextRulePair(currentPair.text, currentPair.variableName, currentPair.nonterminalProduction, currentPair.semanticTranslation, assignment));
 				for (var variableName in assignment) {
@@ -228,12 +229,16 @@ if (process.argv[1] === __filename) {
 	var grammar = scfg.fromString(fs.readFileSync("NegotiationGrammarJsonMinimalAngled.txt",'utf8'));
 	//console.log("\nGRAMMAR:\n"); console.dir(grammar);
 	
+	// create the variables configuration:
 	var variables = {
 		"<number>": "\\d+",
-		"<currency>": "[^() ]+",
 	};
-	
-	var translator = new ScfgTranslator(grammar, "<root>", RegexpWithNames.matches(variables));
+	grammar.nonterminals().forEach(function(nonterminal) {
+		variables[nonterminal] = ".+";
+	});
+	var entail = RegexpWithNames.matches(variables);
+	//console.dir(entail("I offer a salary of 20000 USD", "<acceptpartial>"));
+	var translator = new ScfgTranslator(grammar, "<root>", entail);
 
 	console.log("single forward  translation: "+translator.translate("I offer a salary of 20000 USD", true));
 	//console.log("single backward translation: "+translator.translate("OFFER(20000-USD)", false));
