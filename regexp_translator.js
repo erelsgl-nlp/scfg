@@ -27,6 +27,7 @@ var RegexpTranslator = function(source, target, mapVariableToRegexp) {
 
 
 RegexpTranslator.prototype = {
+
 	/**
 	 * Translate the string back or forth.
 	 *
@@ -35,6 +36,21 @@ RegexpTranslator.prototype = {
 	 * @return a list of translations.
 	 */
 	translate: function(string, forward) {
+		var translations = [];
+		this.addTranslations(string,forward,translations);
+		return translations;
+	},
+	
+	
+	/**
+	 * Add the translations of the given string to the given translationsOutput array.
+	 *
+	 * @param string a text string.
+	 * @param forward (boolean) - true to translate from source to target, false to translate from target to source.
+	 * @param translationsOutput - an array where the translations will be inserted. 
+	 * @return a list of translations.
+	 */
+	addTranslations: function(string, forward, translationsOutput) {
 		if (forward) {
 			var sourcePattern = this.sourcePattern;
 			var target = this.target;
@@ -43,21 +59,19 @@ RegexpTranslator.prototype = {
 			var target = this.source;
 		}
 		var assignments = sourcePattern.matches(string);
-		var translations = [];
 		assignments.forEach(function(mapVariableToValue) {
 			var translation = target;
 			for (var variable in mapVariableToValue) {
 				var value = mapVariableToValue[variable];
 				translation = translation.replace(variable, value);
 			}
-			translations.push(translation);
+			translationsOutput.push(translation);
 		});
-		return translations;
 	},
 }
 
 
-module.exports = RegexpWithNames;
+module.exports = RegexpTranslator;
 
 
 // DEMO PROGRAM:
