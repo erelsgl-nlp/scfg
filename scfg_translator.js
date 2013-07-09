@@ -74,17 +74,27 @@ var util = require('util');
 
 
 
-/**
- * @return a clone of the given array of strings, sorted from long to short.
- */
-function sortedFromLongToShort(array) {
-				array = array.map(function(a){return a;});  // == clone
-				array.sort(function(a,b) {  // sort from long to short
-					if (a.length!=b.length) return b.length - a.length; // note reverse order
-					else return a.localeCompare(b);
-				});
-				return array;
-}
+	/**
+	 * @return a clone of the given array of strings, sorted from long to short.
+	 */
+	function sortedFromLongToShort(array) {
+		array = array.map(function(a){return a;});  // == clone
+		array.sort(function(a,b) {  // sort from long to short
+			if (a.length!=b.length) return b.length - a.length; // note reverse order
+			else return a.localeCompare(b);
+		});
+		return array;
+	}
+	
+	/**
+	 * Returns a copy of the object where the keys have become the values and the values the keys. For this to work, all of your object's values should be unique and string serializable
+	 */
+	function inverted(hash) {
+		var inverted = {};
+		for (key in hash)
+			inverted[hash[key]]=key;
+		return inverted;
+	}
 
 /* main class */
 
@@ -108,18 +118,8 @@ ScfgTranslator.prototype = {
 	 * @return a list of translations.
 	 */
 	translate: function(text, forward) {
-		if (forward) {
-			this.logger.startAction("translate '"+text+"'");
-			var rootTranslations = this.forwardTranslations(text);
-			this.logger.endAction(rootTranslations.toString());
-			return rootTranslations;
-		} else {
-			throw new Error("Reverse translation is not supported here");
-		}
-	},
-	
-	
-	forwardTranslations: function(text) {
+		this.logger.startAction("translate '"+text+"'");
+
 		// DATA STRUCTURES:
 		var openQueue = new LoggingOneTimeQueue(this.logger);
 		var goodStack = new LoggingStack(this.logger);
@@ -130,8 +130,10 @@ ScfgTranslator.prototype = {
 		{
 			var variableName = this.grammar.root();
 			var nonterminalTranslationMap = grammar.translationsOfNonterminal(variableName); 
+			if (!forward)
+				nonterminalTranslationMap = inverted(nonterminalTranslationMap);
 			var sortedNonterminalProductions = sortedFromLongToShort(Object.keys(nonterminalTranslationMap));
-			
+
 			sortedNonterminalProductions.forEach(function(nonterminalProduction) {
 				var semanticTranslation = nonterminalTranslationMap[nonterminalProduction];
 				openQueue.add(new SubtextRulePair(
@@ -151,6 +153,9 @@ ScfgTranslator.prototype = {
 				for (var variableName in assignment) {
 					if (grammar.hasNonterminal(variableName)) { // variable has translations - it is a nonterminal:   
 						var nonterminalTranslationMap = grammar.translationsOfNonterminal(variableName);  // N/M
+						if (!forward)
+							nonterminalTranslationMap = inverted(nonterminalTranslationMap);
+						
 						var sortedNonterminalProductions = sortedFromLongToShort(Object.keys(nonterminalTranslationMap));
 						var variableValue = assignment[variableName];
 						sortedNonterminalProductions.forEach(function(nonterminalProduction) {
@@ -212,6 +217,8 @@ ScfgTranslator.prototype = {
 			}
 		});
 		this.logger.endAction("Clean.size="+cleanSet.size()+" rootTranslations.size="+rootTranslations.length); 
+
+		this.logger.endAction(rootTranslations.toString());
 		return rootTranslations;
 	},
 	
@@ -249,13 +256,13 @@ if (process.argv[1] === __filename) {
 	translator.logger.active=false;
 
 	console.log("single forward  translation: "+translator.translate("a", true));
-	//console.log("single backward translation: "+translator.translate("OFFER(20000-USD)", false));
+	console.log("single backward translation: "+translator.translate("b", false));
 	console.log("two forward  translations: "+translator.translate("a c", true));
-	//console.log("two backward translations: "+translator.translate("OFFER(20000-USD),OFFER(40000-ILS)", false));
+	console.log("two backward translations: "+translator.translate("b d", false));
 	console.log("three forward  translations: "+translator.translate("a c a", true));
-	//console.log("three backward translations: "+translator.translate("OFFER(CAR),OFFER(20000-USD),OFFER(40000-ILS)", false));
+	console.log("three backward translations: "+translator.translate("b d b", false));
 	console.log("no forward  translations: "+translator.translate("b d", true));
-	//console.log("no backward translations: "+translator.translate("OFFER(COMPANY-CAR)", false));
+	console.log("no backward translations: "+translator.translate("a c", false));
 
 	console.log("scfg_translator.js demo end");
 }
