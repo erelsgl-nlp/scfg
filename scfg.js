@@ -63,7 +63,7 @@ SynchronousContextFreeGrammar.prototype = {
 
 		var translationsFromStartNonterminal = this.translationsOfNonterminal(startNonterminal);
 		if (translationsFromStartNonterminal==null)
-			throw new NullPointerException("No translations from startNonterminal "+startNonterminal);
+			throw new Error("No translations from startNonterminal "+startNonterminal);
 		if (maxDepth<=0)    // don't expand nonterminal anymore - prevent infinite recursion
 			return translationsFromStartNonterminal;
 		

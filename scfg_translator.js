@@ -102,20 +102,35 @@ var util = require('util');
  * Initialize a ScfgTranslator.
  *
  * @param grammar a SynchronousContextFreeGrammar (see scfg.js).
- * @param entail a function that gets text and hypothesis and returns a list of assignments (see regexp_names.js);
+ * @param entail [optional] a function that gets text (T) and hypothesis with variables (H), and returns a list of assignments to the variables of H, such that the result is entailed by T.
+ *        The default 'entail' function is just identity match (see regexp_names.js).
  */
 var ScfgTranslator = function(grammar, entail) {
+	if (!grammar) throw new Error("empty grammar");
 	this.grammar = grammar;
+	
+	if (!entail) {  // create a default (identity match) entail function: 
+		// create the variables configuration:
+		var variables = {};
+		grammar.nonterminals().forEach(function(nonterminal) {
+			if (!(nonterminal in variables))
+				variables[nonterminal] = ".+";
+		});
+		entail = RegexpWithNames.matches(variables);
+	}
+	
+	
 	this.entail = entail;
 }
 
 ScfgTranslator.prototype = {
+
 	/**
 	 * Translate the string back or forth.
 	 *
 	 * @param string a text string.
 	 * @param forward (boolean) - true to translate from source to target, false to translate from target to source.
-	 * @return a list of translations.
+	 * @return a set of translations (a hash whose KEYS are translations)..
 	 */
 	translate: function(text, forward) {
 		this.logger.startAction("translate '"+text+"'");
@@ -129,7 +144,7 @@ ScfgTranslator.prototype = {
 		this.logger.startAction("Initialization");
 		{
 			var variableName = this.grammar.root();
-			var nonterminalTranslationMap = grammar.translationsOfNonterminal(variableName); 
+			var nonterminalTranslationMap = this.grammar.translationsOfNonterminal(variableName); 
 			if (!forward)
 				nonterminalTranslationMap = inverted(nonterminalTranslationMap);
 			var sortedNonterminalProductions = sortedFromLongToShort(Object.keys(nonterminalTranslationMap));
@@ -152,7 +167,7 @@ ScfgTranslator.prototype = {
 				goodStack.push(currentPair.withNewAssignment(assignment));
 				for (var variableName in assignment) {
 					if (grammar.hasNonterminal(variableName)) { // variable has translations - it is a nonterminal:   
-						var nonterminalTranslationMap = grammar.translationsOfNonterminal(variableName);  // N/M
+						var nonterminalTranslationMap = this.grammar.translationsOfNonterminal(variableName);  // N/M
 						if (!forward)
 							nonterminalTranslationMap = inverted(nonterminalTranslationMap);
 						
@@ -206,19 +221,17 @@ ScfgTranslator.prototype = {
 		
 
 		this.logger.startAction("Finalization");
-		var rootTranslations = [];
+		var rootTranslations = {};
 		var self=this;
 		cleanSet.each(function(cleanPair) {
 			self.logger.info("Checking "+cleanPair);
 			if (cleanPair.hasTextAndVariableName(text, self.grammar.root()))  { // find pairs with (Text, {root} -> ?)
 				self.logger.info("Results += "+cleanPair.naturalLanguage+"/"+cleanPair.semanticTranslation);
 				cleanPair.assertNoVariables();  
-				rootTranslations.push(cleanPair.semanticTranslation);
+				rootTranslations[cleanPair.semanticTranslation]=true;
 			}
 		});
-		this.logger.endAction("Clean.size="+cleanSet.size()+" rootTranslations.size="+rootTranslations.length); 
-
-		this.logger.endAction(rootTranslations.toString());
+		this.logger.endAction(JSON.stringify(rootTranslations));
 		return rootTranslations;
 	},
 	
@@ -245,24 +258,17 @@ if (process.argv[1] === __filename) {
 	
 	var fs = require('fs');
 	var grammar = scfg.fromString(fs.readFileSync("grammars/FlatGrammar.txt",'utf8'));
-	
-	// create the variables configuration:
-	var variables = {};
-	grammar.nonterminals().forEach(function(nonterminal) {
-		variables[nonterminal] = ".+";
-	});
-	var entail = RegexpWithNames.matches(variables);
-	var translator = new ScfgTranslator(grammar, entail);
+	var translator = new ScfgTranslator(grammar);
 	translator.logger.active=false;
 
-	console.log("single forward  translation: "+translator.translate("a", true));
-	console.log("single backward translation: "+translator.translate("b", false));
-	console.log("two forward  translations: "+translator.translate("a c", true));
-	console.log("two backward translations: "+translator.translate("b d", false));
-	console.log("three forward  translations: "+translator.translate("a c a", true));
-	console.log("three backward translations: "+translator.translate("b d b", false));
-	console.log("no forward  translations: "+translator.translate("b d", true));
-	console.log("no backward translations: "+translator.translate("a c", false));
+	console.log("single forward  translation: "+JSON.stringify(translator.translate("a", true)));
+	console.log("single backward translation: "+JSON.stringify(translator.translate("b", false)));
+	console.log("two forward  translations: "+JSON.stringify(translator.translate("a c", true)));
+	console.log("two backward translations: "+JSON.stringify(translator.translate("b d", false)));
+	console.log("three forward  translations: "+JSON.stringify(translator.translate("a c a", true)));
+	console.log("three backward translations: "+JSON.stringify(translator.translate("b d b", false)));
+	console.log("no forward  translations: "+JSON.stringify(translator.translate("b d", true)));
+	console.log("no backward translations: "+JSON.stringify(translator.translate("a c", false)));
 
 	console.log("scfg_translator.js demo end");
 }
