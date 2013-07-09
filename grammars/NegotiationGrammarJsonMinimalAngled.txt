@@ -1,4 +1,4 @@
-# This is a demo grammar 
+# This is a real-life grammar from a dialog NLU application.  
 
 == <root> ==
 * <offer>  / <offer>

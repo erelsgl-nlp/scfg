@@ -1,0 +1,17 @@
+== {root} ==
+* If you give me {aaa:noun} I give you {bbb:noun}    /   OFFER({aaa:noun}, {bbb:noun})
+* Do you prefer {aaa:noun} or {bbb:noun}? /   QUERY({aaa:noun}, {bbb:noun})
+
+== {aaa:noun} ==
+* {111:number} hours            /   Working Hours={111:number}
+* A salary of {111:number} NIS  /   Salary={111:number}
+* A car                      /   Leased Car=With leased car
+
+== {bbb:noun} ==
+* {111:number} % pension        /   Pension Fund={111:number}%
+* A salary of {111:number} NIS  /   Salary={111:number}
+* A car             /   Leased Car=With leased car
+
+== @Test ==
+* If you give me 10 hours I give you a car         /  OFFER(Working Hours=10, Leased Car=With leased car)
+* Do you prefer 8 hours or a company car?          /  QUERY(Working Hours=8, Leased Car=With leased car)

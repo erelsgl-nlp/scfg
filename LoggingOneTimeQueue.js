@@ -1,32 +1,34 @@
 /**
  * A queue that holds each different element at most once.
  * It remembers what it has already seen, and does not insert new copies of it.
+ * The queue also logs every insertion.
  *
  * @author Erel Segal Halevi
  * @since 2013-07
  */
  
 
-var OneTimeQueue = function() {
+var LoggingOneTimeQueue = function(logger) {
 	this.openQueue = [];
 	this.seenSet = {};
+	this.logger = logger;
 }
 
 var uniqueQueue = true;
 
-OneTimeQueue.prototype = {
+LoggingOneTimeQueue.prototype = {
 	add: function (element) {
 		if (element in this.seenSet) {
-			console.log("Open already contains "+element);
+			this.logger.info("Open already contains "+element);
 			if (uniqueQueue)
 				return false;
 			else {
-				console.log("Open += "+element);
+				this.logger.info("Open += "+element);
 				this.openQueue.push(element);
 				return true;
 			}
 		} else {
-			console.log("Open += "+element);
+			this.logger.info("Open += "+element);
 			this.seenSet[element]=true;
 			this.openQueue.push(element);
 			return true;
@@ -46,7 +48,7 @@ OneTimeQueue.prototype = {
 	},
 };
 
-module.exports = OneTimeQueue;
+module.exports = LoggingOneTimeQueue;
 
 // DEMO PROGRAM:
 if (process.argv[1] === __filename) {

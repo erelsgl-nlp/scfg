@@ -1,0 +1,20 @@
+{
+    "name": "scfg",
+    "description": "Synchronous Context Free Grammar in Node.js.",
+    "version": "0.1.0",
+    "author": "Erel Segal-haLevi <erelsgl@gmail.com>",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/erelsgl/scfg.git"
+    },
+    "dependencies" : {
+        "simplesets" : ">=1.1.0"
+    },
+    "devDependencies" : {
+        "mocha"  : ">=1.0.0",
+        "cradle" : ">=0.2.0",
+        "should" : ">=0.6.0",
+        "async" : ">=0.1.18"
+    },
+    "keywords": ["grammar", "cfg", "synchronous cfg", "context free"]
+}

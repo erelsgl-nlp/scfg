@@ -5,19 +5,45 @@
 
 
 
-var SynchronousContextFreeGrammar = function(grammarMap) {
+/**
+ * Initialize a Syncronous Context Free Grammar.
+ *
+ * @param grammarMap - a hash whose keys are nonterminals and whose values are rule-lists.
+ *        Each rule list is a hash whose keys are source strings and whose values are target-strings.
+ *        See the demo program, at the bottom of this file, for an example. 
+ * @param grammarRoot (String) - the start-symbol (aka root) of the grammar.
+ */
+var SynchronousContextFreeGrammar = function(grammarMap, grammarRoot) {
 	this.grammarMap = grammarMap;
+	this.grammarRoot = grammarRoot;
 }
 
 SynchronousContextFreeGrammar.prototype = {
+
+	/**
+	 * @return the start symbol (aka root) of this grammar.
+	 */
+	root: function() {
+		return this.grammarRoot;
+	},
+
+	/**
+	 * return an array of all nonterminals in the grammar.
+	 */
 	nonterminals: function() {
 		return Object.keys(this.grammarMap);
 	},
 	
+	/**
+	 * @return a hash {source: target1, source2: target2, ...} with translations of a single nonterminal.
+	 */
 	translationsOfNonterminal: function (nonterminal) {
 		return this.grammarMap[nonterminal];
 	},
 	
+	/**
+	 * @return boolean - true if the given nonterminal exists in the grammar.
+	 */
 	hasNonterminal: function(nonterminal) {
 		return nonterminal in this.grammarMap;
 	},
@@ -25,6 +51,8 @@ SynchronousContextFreeGrammar.prototype = {
 	
 	/**
 	 * Generate all strings from the given startNonterminal, with the given maxDepth.
+	 * @return hash {source1: target1, source2: target2, ...}
+	 * See demo program at bottom of current file.
 	 */
 	expand: function(startNonterminal, maxDepth, variableDescriptionType, verbosity) {
 		if (!this.expandedGrammarMap)  expandedGrammarMap = {};
@@ -98,20 +126,40 @@ var commentPattern = /\s*#.*?$/;
 var separatorPattern = /\s*\/\s*/;
 
 module.exports = {
-	DEFAULT_GRAMMAR_ROOT: "<root>",
 
 	/**
 	 * Create a new SCFG from the given string.
+	 *
+	 * The format of the string is:
+	 *
+	 * == root-nonterminal ==
+	 * * source1 / target1
+	 * * source2 / target2
+	 * * ...
+	 *
+	 * == nonterminal-1 ==
+	 * * source1 / target1
+	 * * source2 / target2
+	 * * ...
+	 *
+	 * etc.
+	 *
+	 * Comments start with '#' and end at the end of line.
+	 *
+	 * The first heading is the start symbol of the grammar (aka root).
 	 */
 	fromString: function(grammarString) {
 		var grammarLines = grammarString.split(/[\r\n]/);
 		var grammarMap = {};
 		var currentTitle = null;
+		var grammarRoot = null;
 		grammarLines.forEach(function(line) {
 			line = line.replace(commentPattern, "");
 			line = line.trim();
 			if ((matcher = headingPattern.exec(line))) {
 				currentTitle = matcher[1].trim();
+				if (!grammarRoot)
+					grammarRoot = currentTitle;
 			} else if ((matcher = listItemPattern.exec(line)) && currentTitle) {
 				var pair = matcher[1];
 				var fields = pair.split(separatorPattern);
@@ -122,7 +170,7 @@ module.exports = {
 				grammarMap[currentTitle][fields[0].trim()] = fields[1].trim();
 			}
 		});
-		return new SynchronousContextFreeGrammar(grammarMap);
+		return new SynchronousContextFreeGrammar(grammarMap, grammarRoot);
 	} // end function fromString
 };
 
@@ -131,10 +179,16 @@ module.exports = {
 if (process.argv[1] === __filename) {
 	console.log("scfg.js demo start");
 	var fs = require('fs');
-	var scfg = module.exports.fromString(fs.readFileSync("NegotiationGrammarJsonMinimalAngled.txt",'utf8'));
+	var grammar = module.exports.fromString(fs.readFileSync("grammars/NegotiationGrammarJsonMinimalAngled.txt",'utf8'));
 	console.log("\nGRAMMAR:\n");
-	console.dir(scfg);
+	console.dir(grammar);
+	
 	console.log("\nEXPANDED GRAMMAR:\n");
-	console.dir(scfg.expand(module.exports.DEFAULT_GRAMMAR_ROOT, 10, null, 1));
+	var expandedGrammar = grammar.expand(grammar.root(), 10, null, 1);
+	//console.dir(expandedGrammar);
+
+	for (var input in expandedGrammar) 
+		console.log(input+" / "+ expandedGrammar[input]);
 	console.log("scfg.js demo end");
 }
+
