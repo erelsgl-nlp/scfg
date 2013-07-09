@@ -133,7 +133,10 @@ ScfgTranslator.prototype = {
 	 * @return a set of translations (a hash whose KEYS are translations)..
 	 */
 	translate: function(text, forward) {
-		this.logger.startAction("translate '"+text+"'");
+		var grammar = this.grammar;
+		var logger = this.logger;
+		
+		logger.startAction("translate '"+text+"'");
 
 		// DATA STRUCTURES:
 		var openQueue = new LoggingOneTimeQueue(this.logger);
@@ -141,10 +144,10 @@ ScfgTranslator.prototype = {
 		var cleanSet = new sets.Set();
 		
 		var mainTextId = null;
-		this.logger.startAction("Initialization");
+		logger.startAction("Initialization");
 		{
-			var variableName = this.grammar.root();
-			var nonterminalTranslationMap = this.grammar.translationsOfNonterminal(variableName); 
+			var variableName = grammar.root();
+			var nonterminalTranslationMap = grammar.translationsOfNonterminal(variableName); 
 			if (!forward)
 				nonterminalTranslationMap = inverted(nonterminalTranslationMap);
 			var sortedNonterminalProductions = sortedFromLongToShort(Object.keys(nonterminalTranslationMap));
@@ -156,51 +159,52 @@ ScfgTranslator.prototype = {
 			});
 		} // end of initialization
 		
-		this.logger.endAction("Initialization; Open.size="+openQueue.size()+" Good.size="+goodStack.size()+"\n"); 
+		logger.endAction("Initialization; Open.size="+openQueue.size()+" Good.size="+goodStack.size()+"\n"); 
 
-		this.logger.startAction("Downward Loop");
+		logger.startAction("Downward Loop");
 		while (!openQueue.isEmpty()) {
 			var currentPair = openQueue.remove(); // (T, V->N)
-			this.logger.startAction("Drilling down on "+currentPair);
-			var assignments = this.entail(currentPair.subText, currentPair.naturalLanguage); // entail(T,N)
+			logger.startAction("Drilling down on "+currentPair);
+			var assignments = this.entail(currentPair.subText, currentPair.naturalLanguage); // assignment=entail(T,N)
 			assignments.forEach(function(assignment) {
-				goodStack.push(currentPair.withNewAssignment(assignment));
+				goodStack.push(currentPair.withNewAssignment(assignment));  // (T, V->N, assignment)
 				for (var variableName in assignment) {
+					var variableValue = assignment[variableName];
 					if (grammar.hasNonterminal(variableName)) { // variable has translations - it is a nonterminal:   
-						var nonterminalTranslationMap = this.grammar.translationsOfNonterminal(variableName);  // N/M
+						var nonterminalTranslationMap = grammar.translationsOfNonterminal(variableName);  // N/M
 						if (!forward)
 							nonterminalTranslationMap = inverted(nonterminalTranslationMap);
 						
 						var sortedNonterminalProductions = sortedFromLongToShort(Object.keys(nonterminalTranslationMap));
-						var variableValue = assignment[variableName];
 						sortedNonterminalProductions.forEach(function(nonterminalProduction) {
 							var semanticTranslation = nonterminalTranslationMap[nonterminalProduction];
 							openQueue.add(new SubtextRulePair(
-								text, variableName, nonterminalProduction, semanticTranslation)); // add the pair (Text, {root}->Ni/Mj)
+								variableValue, variableName, nonterminalProduction, semanticTranslation)); // add the pair (Text, {root}->Ni/Mj)
 						});
 					}
 				}  // end of loop over variables in a single assignment
 			});  // end of loop over assignments in a single entailment
-			this.logger.endAction("Open.size="+openQueue.size()+" Good.size="+goodStack.size()); 
+			logger.endAction("Open.size="+openQueue.size()+" Good.size="+goodStack.size()); 
 		} // end of downward loop (if openQueue is empty, exit)
-		this.logger.endAction("Downward Loop\n");
+		logger.endAction("Downward Loop\n");
 
-		this.logger.startAction("Upward Loop");
+		logger.startAction("Upward Loop");
 		while (!goodStack.isEmpty()) {
 			var currentTriple = goodStack.pop(); // (T, V->N, assignment)
-			this.logger.startAction("Climbing up on "+currentTriple);
-			if (!Object.keys(currentTriple.assignment).length) {
+			logger.startAction("Climbing up on "+currentTriple);
+			if (!Object.keys(currentTriple.assignment).length) {  // empty assignment (no variables) - clean pair!
 				var newTriple = currentTriple.withNewAssignment(null);
 				cleanSet.add(newTriple);
-			} else {  //current assignment has variables
-				var variableName = currentTriple.assignment.variableNames().iterator().next();       // Vk
+			} else {  //current assignment has variables - take one of them:
+				var variableName = Object.keys(currentTriple.assignment)[0];  // Vk
 				var variableValue = currentTriple.assignment[variableName];   // Ak
-				var assignedString = currentTriple.assignment.stringAssignment(variableName); 
-				var assignmentWithoutVariable = currentTriple.assignment.clone(); // assignment without Vk
-				delete assignmentWithoutVariable[variableName];
+				var assignmentWithoutVariable = {};                           // assignment without Vk
+				for (var varName in currentTriple.assignment)
+					if (varName!=variableName)
+						assignmentWithoutVariable[varName] = currentTriple.assignment[varName];
 				if (grammar.hasNonterminal(variableName)) { // variable has translations - it is a nonterminal - clean it by replacing previously clean pairs:
 					cleanSet.each(function(previousCleanPair) {
-						if (previousCleanPair.hasTextAndVariableName(assignedSubtreeId, variableName)) { // find pairs with (Ak, Vk -> ?)
+						if (previousCleanPair.hasTextAndVariableName(variableValue, variableName)) { // find pairs with (Ak, Vk -> ?)
 							var newTriple = currentTriple.withNewAssignment(assignmentWithoutVariable);
 							newTriple.naturalLanguage = newTriple.naturalLanguage.replace(variableName, previousCleanPair.naturalLanguage);  // N*
 							newTriple.semanticTranslation = newTriple.semanticTranslation.replace(variableName, previousCleanPair.semanticTranslation);  // M*
@@ -215,23 +219,22 @@ ScfgTranslator.prototype = {
 					goodStack.push(newTriple);
 				}
 			} // end of handling assignment with variables
-			this.logger.endAction("Good.size="+goodStack.size()+" Clean.size="+cleanSet.size()); 
+			logger.endAction("Good.size="+goodStack.size()+" Clean.size="+cleanSet.size()); 
 		} // end of upward loop
-		this.logger.endAction("Upward loop\n"); 
+		logger.endAction("Upward loop\n"); 
 		
 
-		this.logger.startAction("Finalization");
+		logger.startAction("Finalization");
 		var rootTranslations = {};
-		var self=this;
 		cleanSet.each(function(cleanPair) {
-			self.logger.info("Checking "+cleanPair);
-			if (cleanPair.hasTextAndVariableName(text, self.grammar.root()))  { // find pairs with (Text, {root} -> ?)
-				self.logger.info("Results += "+cleanPair.naturalLanguage+"/"+cleanPair.semanticTranslation);
+			logger.info("Checking "+cleanPair);
+			if (cleanPair.hasTextAndVariableName(text, grammar.root()))  { // find pairs with (Text, {root} -> ?)
+				logger.info("Results += "+cleanPair.naturalLanguage+"/"+cleanPair.semanticTranslation);
 				cleanPair.assertNoVariables();  
 				rootTranslations[cleanPair.semanticTranslation]=true;
 			}
 		});
-		this.logger.endAction(JSON.stringify(rootTranslations));
+		logger.endAction(JSON.stringify(rootTranslations));
 		return rootTranslations;
 	},
 	
@@ -257,7 +260,7 @@ if (process.argv[1] === __filename) {
 	console.log("scfg_translator.js demo start");
 	
 	var fs = require('fs');
-	var grammar = scfg.fromString(fs.readFileSync("grammars/FlatGrammar.txt",'utf8'));
+	var grammar = scfg.fromString(fs.readFileSync("grammars/Grammar1Flat.txt",'utf8'));
 	var translator = new ScfgTranslator(grammar);
 	translator.logger.active=false;
 

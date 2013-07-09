@@ -1,0 +1,17 @@
+# This is a finite, 2-level grammar that translates natural language fragments to simple commands  with some ambiguities.
+
+== <root> ==
+* <verb> / DO(<verb>)
+* <verb> the <noun> / DO(<verb>,<noun>)
+
+== <verb> ==
+* get / GET
+* take / GET
+* put / PUT
+* give / PUT
+
+== <noun> ==
+* bread / FOOD
+* food / FOOD
+* water / FLUID
+* juice / FLUID

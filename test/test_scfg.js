@@ -6,7 +6,7 @@ var assert = require('should'),
 describe('Synchronous Context Free Grammar Translator', function() {
 	var grammar;
 	it('should read from file', function() {
-		grammar = scfg.fromString(fs.readFileSync("../grammars/FlatGrammar.txt", 'utf8'));
+		grammar = scfg.fromString(fs.readFileSync("../grammars/Grammar1Flat.txt", 'utf8'));
 	})
 	it('should know its root', function() {
 		grammar.root().should.equal("<root>");
