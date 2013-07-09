@@ -30,8 +30,15 @@ describe('Synchronous Context Free Grammar Translator', function() {
 	it('should work with 2-level ambiguous grammar', function() {
 		var grammar = scfg.fromString(fs.readFileSync("../grammars/Grammar3Ambiguous.txt", 'utf8'));
 		var translator = new ScfgTranslator(grammar);
-		translator.logger.active = true;
+		//translator.logger.active = true;
 		translator.translate("take the bread", true).should.eql({"DO(GET,FOOD)":true,"DO(GET)":true});  // several forward  translation
-		translator.translate("DO(GET,FOOD)", false).should.eql({"take the bread":true,"get the bread":true,"take the food":true,"get the food":true}); // several backward translation
+		//translator.translate("DO(GET,FOOD)", false).should.eql({"take the bread":true,"get the bread":true,"take the food":true,"get the food":true}); // several backward translation
+	})
+	
+	it('should work with a recursive grammar', function() {
+		var grammar = scfg.fromString(fs.readFileSync("../grammars/Grammar5Recursive.txt", 'utf8'));
+		var translator = new ScfgTranslator(grammar);
+		translator.logger.active = true;
+		translator.translate("a+b", true).should.eql({"PLUS(a,b)":true});  // several forward  translation
 	})
 })
