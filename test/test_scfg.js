@@ -21,4 +21,10 @@ describe('Synchronous Context Free Grammar', function() {
 		grammar = scfg.fromString(fs.readFileSync("../grammars/Grammar2Finite.txt", 'utf8'));
 		Object.keys(grammar.variables()).should.have.lengthOf(2);
 	})
+	/*
+	it('should handle multiple rules with the same LHS', function() {
+		grammar = scfg.fromString(fs.readFileSync("../grammars/Grammar3Ambiguous.txt", 'utf8'));
+		Object.keys(grammar.translationsOfNonterminal("<verb>")).should.have.lengthOf(4);
+	})*/
+	
 })

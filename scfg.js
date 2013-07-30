@@ -35,10 +35,17 @@ SynchronousContextFreeGrammar.prototype = {
 	},
 	
 	/**
+	 * @return boolean - true if the given nonterminal exists in the grammar.
+	 */
+	hasNonterminal: function(nonterminal) {
+		return normalizedNonterminal(nonterminal) in this.grammarMap;
+	},
+	
+	/**
 	 * @return a hash {source1: target1, source2: target2, ...} with translations of a single nonterminal.
 	 */
 	translationsOfNonterminal: function (nonterminal) {
-		return this.grammarMap[nonterminal];
+		return this.grammarMap[normalizedNonterminal(nonterminal)];
 	},
 	
 	/**
@@ -46,13 +53,6 @@ SynchronousContextFreeGrammar.prototype = {
 	 */
 	variables: function (nonterminal) {
 		return this.grammarMap["@Variables"] || {};
-	},
-	
-	/**
-	 * @return boolean - true if the given nonterminal exists in the grammar.
-	 */
-	hasNonterminal: function(nonterminal) {
-		return nonterminal in this.grammarMap;
 	},
 
 	
@@ -123,8 +123,16 @@ SynchronousContextFreeGrammar.prototype = {
 	
 };
 
+/**
+ * A nonterminal may be indexed, for example, "<number>2". 
+ * This function removes the index and returns the base variable, e.g., "<number>".
+ */
+function normalizedNonterminal(nonterminal) {
+	return nonterminal.replace(/>\d+/,">");
+}
+
 /*
- * FORMATTING:
+ * FORMATTING OF GRAMMAR FILES:
  */
 
 var headingPattern = /[=]+\s*(.*?)\s*[=]+\s*/;

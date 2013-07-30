@@ -15,3 +15,7 @@
 * food / FOOD
 * water / FLUID
 * juice / FLUID
+
+== @Variables ==
+* <verb> / [^ ,]+
+* <noun> / [^ ,]+

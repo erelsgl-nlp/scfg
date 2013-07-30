@@ -12,5 +12,5 @@
 * water / FLUID
 
 == @Variables ==
-* <verb> / [^ ]+
-* <noun> / [^ ]+
+* <verb> / [^ ,]+
+* <noun> / [^ ,]+

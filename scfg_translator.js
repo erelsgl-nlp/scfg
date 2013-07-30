@@ -86,12 +86,16 @@ var util = require('util');
 	}
 	
 	/**
-	 * Returns a copy of the object where the keys have become the values and the values the keys. For this to work, all of your object's values should be unique and string serializable
+	 * Returns a copy of the object where the keys have become the values and the values are arrays of keys. For this to work, all of your object's values should be string serializable
 	 */
 	function inverted(hash) {
 		var inverted = {};
-		for (key in hash)
-			inverted[hash[key]]=key;
+		for (key in hash) {
+			var value = hash[key];
+			if (!inverted[value])
+				inverted[value]=[];
+			inverted[value].push(key);
+		}
 		return inverted;
 	}
 
@@ -152,9 +156,16 @@ ScfgTranslator.prototype = {
 			var sortedNonterminalProductions = sortedFromLongToShort(Object.keys(nonterminalTranslationMap));
 
 			sortedNonterminalProductions.forEach(function(nonterminalProduction) {
-				var semanticTranslation = nonterminalTranslationMap[nonterminalProduction];
-				openQueue.add(new SubtextRulePair(
-					text, variableName, nonterminalProduction, semanticTranslation)); // add the pair (Text, {root}->Ni/Mj)
+				var semanticTranslations = nonterminalTranslationMap[nonterminalProduction];
+				if (semanticTranslations instanceof Array) {
+					semanticTranslations.forEach(function(semanticTranslation) {
+						openQueue.add(new SubtextRulePair(
+							text, variableName, nonterminalProduction, semanticTranslation)); // add the pair (Text, {root}->Ni/Mj)
+					});
+				} else {
+					openQueue.add(new SubtextRulePair(
+						text, variableName, nonterminalProduction, semanticTranslations)); // add the pair (Text, {root}->Ni/Mj)
+				}
 			});
 		} // end of initialization
 		
@@ -176,9 +187,16 @@ ScfgTranslator.prototype = {
 						
 						var sortedNonterminalProductions = sortedFromLongToShort(Object.keys(nonterminalTranslationMap));
 						sortedNonterminalProductions.forEach(function(nonterminalProduction) {
-							var semanticTranslation = nonterminalTranslationMap[nonterminalProduction];
-							openQueue.add(new SubtextRulePair(
-								variableValue, variableName, nonterminalProduction, semanticTranslation)); // add the pair (Text, {root}->Ni/Mj)
+							var semanticTranslations = nonterminalTranslationMap[nonterminalProduction];
+							if (semanticTranslations instanceof Array) {
+								semanticTranslations.forEach(function(semanticTranslation) {
+									openQueue.add(new SubtextRulePair(
+										variableValue, variableName, nonterminalProduction, semanticTranslation)); // add the pair (Text, {root}->Ni/Mj)
+								});
+							} else {
+								openQueue.add(new SubtextRulePair(
+									variableValue, variableName, nonterminalProduction, semanticTranslations)); // add the pair (Text, {root}->Ni/Mj)
+							}
 						});
 					}
 				}  // end of loop over variables in a single assignment
@@ -213,8 +231,8 @@ ScfgTranslator.prototype = {
 				} else {  // variable has no translations - it is a terminal variable:
 					var newTriple = new SubtextRulePair(
 						currentTriple, assignmentWithoutVariable);
-					newTriple.naturalLanguage = newTriple.naturalLanguage.replace(variableName, assignedString);  // N*
-					newTriple.semanticTranslation = newTriple.semanticTranslation.replace(variableName, assignedString);  // M*
+					newTriple.naturalLanguage = newTriple.naturalLanguage.replace(variableName, variableValue);  // N*
+					newTriple.semanticTranslation = newTriple.semanticTranslation.replace(variableName, variableValue);  // M*
 					goodStack.push(newTriple);
 				}
 			} // end of handling assignment with variables

@@ -1,0 +1,11 @@
+# A grammar with chars that have special meaning in regular expressions 
+
+== <root> ==
+* <bit>1+<bit>2 / ADD(<bit>1,<bit>2)
+* <bit>1*<bit>2 / MUL(<bit>1,<bit>2)
+* <bit>? / WHY(<bit>)
+* \<bit> / BACKSLASH(<bit>)
+
+== <bit> ==
+* 0 / 0
+* 1 / 1

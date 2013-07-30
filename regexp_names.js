@@ -35,17 +35,34 @@ var RegexpWithNames = function(pattern, mapVariableToRegexp) {
 
 	var variableArray = [];
 	for (var variable in mapVariableToRegexp) {
-		var charIndex = pattern.indexOf(variable);
-		if (charIndex>=0)
-			variableArray.push({variable: variable, charIndex: charIndex});
+		// look for indexed variables:
+		var hasIndexedVariables=false;
+		for (var index=1;; index++) {  
+			var charIndex = pattern.indexOf(variable+index);
+			if (charIndex>=0) {
+				variableArray.push({variable: variable+index, regexp: mapVariableToRegexp[variable], charIndex: charIndex});
+				hasIndexedVariables = true;
+			} else
+				break;
+		}
+
+		// look for a non-indexed variable:
+		if (!hasIndexedVariables) {
+			var charIndex = pattern.indexOf(variable);
+			if (charIndex>=0)
+				variableArray.push({variable: variable, regexp: mapVariableToRegexp[variable], charIndex: charIndex});
+		}
 	}
 	variableArray.sort(function(a,b){return a.charIndex-b.charIndex;}); // sort by increasing index;
-	
+
 	var mapVariableToIndex = {};
 	for (var variableIndex=0; variableIndex<variableArray.length; ++variableIndex) {
-		var variable = variableArray[variableIndex] = variableArray[variableIndex].variable;
+		var regexp = variableArray[variableIndex].regexp;
+		var variable = variableArray[variableIndex].variable;
+		variableArray[variableIndex] = variable;   // the charIndex and regexp are  no longer needed
 		mapVariableToIndex[variable] = variableIndex;
-		pattern = pattern.replace(variable, "("+mapVariableToRegexp[variable]+")");
+		var variableDescriptionRegexp = new RegExp(variable,"gi");
+		pattern = pattern.replace(variableDescriptionRegexp, "("+regexp+")");
 	}
 	
 	this.variableArray = variableArray;
@@ -102,13 +119,21 @@ if (process.argv[1] === __filename) {
 		"<any>": ".+",
 	};
 	
-	// standard way of using a regexp: compile an object, then match:
+	console.log("\n regexp with special chars:")
+	var nr = new RegexpWithNames("+<number>", variables);
+	console.log("single match: "); console.dir(nr.matches("+1")); 
+		
+	console.log("\n regexp with indexed variables of the same type:")
+	var nr = new RegexpWithNames("<number>1+<number>2", variables);
+	console.log("single match: "); console.dir(nr.matches("2+1")); 
+	
+	console.log("\n standard way of using a regexp: compile an object, then match:");
 	var nr = new RegexpWithNames("I offer a salary of <number> <currency>", variables);
 	console.log("single match: "); console.dir(nr.matches("I offer a salary of 20000 USD")); 
 	console.log("no match: ");     console.dir(nr.matches("I offer a company car"));
 	console.log("two matches: ");  console.dir(nr.matches("I offer a salary of 20000 USD and I offer a salary of 40000 ILS")); // double match
-	
-	// alternative way of using a regexp: compile a function, then match:
+
+	console.log("\n alternative way of using a regexp: compile a function, then match:");
 	var variablesMatches = RegexpWithNames.matches(variables);
 	console.log("single match again: ");  console.dir(variablesMatches("I offer a salary of 20000 USD", "I offer a salary of <number> <currency>"));
 	console.log("match anything:");  console.dir(variablesMatches("I offer a salary of 20000 USD", "<any>"));
