@@ -6,7 +6,6 @@
 
 
 var RegexpWithNames = require('./regexp_names');
-var RegexpTranslator = require('./regexp_translator');
 var LoggingOneTimeQueue = require('./LoggingOneTimeQueue');
 var LoggingStack = require('./LoggingStack');
 var sets = require('simplesets');
@@ -111,7 +110,7 @@ var ScfgTranslator = function(grammar, entail) {
 	
 	if (!entail) {  // create a default (identity match) entail function: 
 		// create the variables configuration:
-		var variables = {};
+		var variables = grammar.variables();
 		grammar.nonterminals().forEach(function(nonterminal) {
 			if (!(nonterminal in variables))
 				variables[nonterminal] = ".+";

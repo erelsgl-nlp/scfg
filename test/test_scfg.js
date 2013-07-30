@@ -3,7 +3,7 @@ var assert = require('should'),
 		fs = require('fs');
 
 
-describe('Synchronous Context Free Grammar Translator', function() {
+describe('Synchronous Context Free Grammar', function() {
 	var grammar;
 	it('should read from file', function() {
 		grammar = scfg.fromString(fs.readFileSync("../grammars/Grammar1Flat.txt", 'utf8'));
@@ -16,5 +16,9 @@ describe('Synchronous Context Free Grammar Translator', function() {
 		Object.keys(expandedGrammar).should.have.lengthOf(2);
 		expandedGrammar.should.have.property("a", "b");
 		expandedGrammar.should.have.property("c", "d");
+	})
+	it('should know its variables', function() {
+		grammar = scfg.fromString(fs.readFileSync("../grammars/Grammar2Finite.txt", 'utf8'));
+		Object.keys(grammar.variables()).should.have.lengthOf(2);
 	})
 })

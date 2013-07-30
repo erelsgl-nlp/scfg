@@ -10,3 +10,7 @@
 == <noun> ==
 * bread / FOOD
 * water / FLUID
+
+== @Variables ==
+* <verb> / [^ ]+
+* <noun> / [^ ]+

@@ -35,10 +35,17 @@ SynchronousContextFreeGrammar.prototype = {
 	},
 	
 	/**
-	 * @return a hash {source: target1, source2: target2, ...} with translations of a single nonterminal.
+	 * @return a hash {source1: target1, source2: target2, ...} with translations of a single nonterminal.
 	 */
 	translationsOfNonterminal: function (nonterminal) {
 		return this.grammarMap[nonterminal];
+	},
+	
+	/**
+	 * @return a hash {variable1: regexp1, variable2: regexp2, ...}, taken from the @Variables section of the grammar.
+	 */
+	variables: function (nonterminal) {
+		return this.grammarMap["@Variables"] || {};
 	},
 	
 	/**
