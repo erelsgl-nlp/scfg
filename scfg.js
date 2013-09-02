@@ -194,7 +194,7 @@ module.exports = {
 if (process.argv[1] === __filename) {
 	console.log("scfg.js demo start");
 	var fs = require('fs');
-	var grammar = module.exports.fromString(fs.readFileSync("grammars/NegotiationGrammarJsonMinimalAngled.txt",'utf8'));
+	var grammar = module.exports.fromString(fs.readFileSync("grammars/NegotiationGrammarEmployer.txt",'utf8'));
 	console.log("\nGRAMMAR:\n");
 	console.dir(grammar);
 	
