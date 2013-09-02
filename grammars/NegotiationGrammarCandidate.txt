@@ -31,10 +31,10 @@
 * What is your offer?                 /   {"Query":"bid"}
 * What issues should we discuss?                 /   {"Query":"issues"}
 * What are you willing to compromise?                 /   {"Query":"compromise"}
-* Do you accept my offer?                 /   {"Query":"accept"}
-* Why do you reject my offer?                 /   {"Query":"reject"}
+* Do you accept my demand?                 /   {"Query":"accept"}
+* Why do you reject my demand?                 /   {"Query":"reject"}
 == <querypartial> ==
-* What do you want regarding the <issue>?   /   {"Query":"<issue>"}
+* What is your offer about the <issue>?   /   {"Query":"<issue>"}
 
 == <insist> ==
 * I insist on my previous offer                    / {"Insist":"previous"}
