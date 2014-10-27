@@ -1,0 +1,92 @@
+# This is a real-life grammar from a dialog NLU application.  
+
+== <root> ==
+* <offer>  / <offer>
+* <accept> / <accept>
+* <acceptpartial> / <acceptpartial>
+* <acceptfull> / <acceptfull>
+* <reject> / <reject>
+* <rejectpartial> / <rejectpartial>
+* <rejectfull> / <rejectfull>
+* <insist> / <insist>
+* <insistpartial> / <insistpartial>
+* <query> / <query>
+* <querypartial> / <querypartial>
+* <quit> / <quit>
+
+== <offer> ==
+* I offer a <issuevalue>                    /   {"Offer":<issuevalue>}
+* I do not offer a company car                  /   {"Offer":{"Leased Car":"Without leased car"}}
+* I offer no agreement about the <issue>   /   {"Offer":{"<issue>":"No agreement"}}
+
+== <accept> ==
+* I accept your previous offer                 /   {"Accept":"previous"}
+== <acceptpartial> ==
+* I accept your offer about the <issue>   /   {"Accept":"<issue>"}
+== <acceptfull> ==
+* I accept <issuevalue>                    /   {"Accept":<issuevalue>}
+
+== <reject> ==
+* I reject your previous offer                 /   {"Reject":"previous"}
+== <rejectpartial> ==
+* I reject your offer about the <issue>   /   {"Reject":"<issue>"}
+== <rejectfull> ==
+* I reject <issuevalue>                    /   {"Reject":<issuevalue>}
+
+== <query> ==
+* What is your offer?                 /   {"Query":"bid"}
+* What issues should we discuss?                 /   {"Query":"issues"}
+* What are you willing to compromise?                 /   {"Query":"compromise"}
+* Do you accept my offer?                 /   {"Query":"accept"}
+* Why do you reject my offer?                 /   {"Query":"reject"}
+== <querypartial> ==
+* What do you want regarding the <issue>?   /   {"Query":"<issue>"}
+
+== <insist> ==
+* I insist on my previous offer                    / {"Insist":"previous"}
+== <insistpartial> ==
+* I insist on my offer about the <issue>  / {"Insist":"<issue>"}
+
+== <quit> == 
+* I quit    / {"Quit": true}
+
+== <issuevalue> ==
+* pension of <pension>        /   {"Pension Fund":"<pension>"}
+* monthly salary of <wage>             /   {"Salary":"<wage>"}
+* workday of <hours> hours          /   {"Working Hours":"<hours>"}
+* company car               /   {"Leased Car":"With leased car"}
+* position as a <jobdescription>      /   {"Job Description":"<jobdescription>"}
+* <promotional> promotion track  /   {"Promotion Possibilities":"<promotional> promotion track"}
+
+== <hours> ==
+* 8 hours / 8 hours
+* 9 hours / 9 hours
+* 10 hours / 10 hours
+
+== <pension> ==
+* 0% / 0%
+* 10% / 10%
+* 20% / 20%
+
+== <wage> ==
+* 60000 / 60,000 USD
+* 90000 / 90,000 USD
+* 120000 / 120,000 USD
+
+== <jobdescription> ==
+* qa              /   QA
+* programmer      /   Programmer
+* team manager    /   Team Manager
+* project manager /   Project Manager
+
+== <promotional> ==
+* fast            /   Fast
+* slow            /   Slow
+
+== <issue> ==
+* salary             /   Salary
+* job description    /   Job Description
+* pension fund     /   Pension Fund
+* company car       /   Leased Car
+* promotion track  /   Promotion Possibilities
+* working hours      /   Working Hours
