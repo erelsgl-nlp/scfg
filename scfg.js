@@ -142,6 +142,20 @@ var separatorPattern = /\s*\/\s*/;
 
 module.exports = {
 
+	// convert generated grammer to the json dataset format
+	embedSet: function(expandedGrammar) {
+		var dset = []
+		for (var input in expandedGrammar) 
+			{
+				dset.push({
+							'input':input, 
+							'output':[expandedGrammar[input]],
+						})
+			}
+	return dset
+	},
+
+
 	/**
 	 * Create a new SCFG from the given string.
 	 *
@@ -192,18 +206,18 @@ module.exports = {
 
 // DEMO PROGRAM:
 if (process.argv[1] === __filename) {
-	console.log("scfg.js demo start");
+//	console.log("scfg.js demo start");
 	var fs = require('fs');
 	var grammar = module.exports.fromString(fs.readFileSync("grammars/NegotiationGrammarEmployer.txt",'utf8'));
-	console.log("\nGRAMMAR:\n");
-	console.dir(grammar);
+//	console.log("\nGRAMMAR:\n");
+//	console.dir(grammar);
 	
-	console.log("\nEXPANDED GRAMMAR:\n");
-	var expandedGrammar = grammar.expand(grammar.root(), 10, null, 1);
+//	console.log("\nEXPANDED GRAMMAR:\n");
+	var expandedGrammar = grammar.expand(grammar.root(), 10, null, 0);
 	//console.dir(expandedGrammar);
-
-	for (var input in expandedGrammar) 
-		console.log(input+" / "+ expandedGrammar[input]);
-	console.log("scfg.js demo end");
+	console.log(JSON.stringify(module.exports.embedSet(expandedGrammar), null, 4))
+//	for (var input in expandedGrammar) 
+//		console.log(input+" / "+ expandedGrammar[input]);
+	//console.log("scfg.js demo end");
 }
 
