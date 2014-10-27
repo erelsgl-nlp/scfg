@@ -1,0 +1,110 @@
+# This is a real-life grammar from a dialog NLU application.  
+
+== <root> ==
+* <offer>  / <offer>
+* <accept> / <accept>
+* <acceptpartial> / <acceptpartial>
+* <reject> / <reject>
+* <insist> / <insist>
+* <insistpartial> / <insistpartial>
+* <query> / <query>
+* <querypartial> / <querypartial>
+* <quit> / <quit>
+* <greet> / <greet>
+
+== <offer> ==
+* I offer a <issuevalue>                    /   {"Offer":<issuevalue>}
+
+== <accept> ==
+* I accept your previous suggestion                 /   {"Accept":"previous"}
+== <acceptpartial> ==
+* I accept your suggestion about the <issue>   /   {"Accept":"<issue>"}
+
+== <reject> ==
+* I reject your previous suggestion                 /   {"Reject":"previous"}
+
+== <query> ==
+* What is your offer?                 /   {"Query":"bid"}
+* What issues should we discuss?                 /   {"Query":"issues"}
+* What are you willing to compromise?                 /   {"Query":"compromise"}
+* Do you accept my offer?                 /   {"Query":"accept"}
+* Why do you reject my offer?                 /   {"Query":"reject"}
+
+== <querypartial> ==
+* What do you want regarding the <issue>?   /   {"Query":"<issue>"}
+
+== <insist> ==
+* I insist on my previous offer                    / {"Insist":"previous"}
+== <insistpartial> ==
+* I insist on my offer about the <issue>  / {"Insist":"<issue>"}
+
+== <quit> == 
+* I quit    / {"Quit": true}
+
+== <greet> == 
+* Hi   / {"Greet": true}
+* Hello   / {"Greet": true}
+
+== <issuevalue> ==
+* <stoves> stoves        /   {"Stoves":"<stoves>"}
+* <refrigerator> refrigerator        /   {"Refrigerator":"<refrigerator>"}
+* <cabinets> cabinet       /   {"Cabinets":"<cabinets>"}
+* <countertops> countertops       /   {"Countertops":"<countertops>"}
+* <lightingspots> lighting spots       /   {"Lighting spots":"<lightingspots>"}
+* <equipment>        /   {"Equipment":"<equipment>"}
+
+== <wage> ==
+* <number> thousand <currency> / <number>,000 <currency>
+
+== <currency> ==
+* NIS / NIS
+
+== <stoves> ==
+* ceramic / Ceramic
+* electrical / Electrical
+* induction / Induction
+* gas / Gas
+* hybrid / Hybrid
+
+== <refrigerator> ==
+* traditional / Traditional
+* side-by-side / Side-by-side
+* top-refrigerator / Top-refrigerator
+* french-door / French-door
+* four-door french-door / Four-door french-door
+
+== <countertops> ==
+* granite / Granite
+* limestone / Limestone
+* marble / Marble
+* inox / Inox
+* acrylic / Acrylic
+
+== <lightingspots> ==
+* 3 / 3
+* 5 / 5
+* 10 / 10
+* 15 / 15
+* 20 / 20
+
+== <equipment> ==
+* dishwasher / Dishwasher
+* coffee machine / Coffee machine
+* microwave / Microwave
+* water boiler / Water Boiler
+* oven / Oven
+
+== <cabinets> ==
+* pine / Pine
+* maple / Maple
+* oak / Oak
+* cherry / Cherry
+* mahogany / Mahogany
+
+== <issue> ==
+* stoves             /   Stoves
+* refrigerator    /   Refrigerator
+* cabinets     /   Cabinets
+* countertops       /   Countertops
+* lighting spots  /   Lighting spots
+* equipment      /   Equipment
